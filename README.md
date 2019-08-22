@@ -8,3 +8,5 @@ To compile the demo code:
 g++ -std=c++11 -pthread InterruptibleThread.cpp -o InterruptibleThread # linux
 cl /EHsc InterruptibleThread.cpp # windows Native Tools Command Prompt
 ```
+
+You need a relatively higher version of `g++`, >=5.4 works.

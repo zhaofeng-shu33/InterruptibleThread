@@ -1,34 +1,20 @@
 #ifndef INTERRUPTIBLETHREAD_H
 #define INTERRUPTIBLETHREAD_H
-
 #include <thread>
 #include <future>
-#include <iostream>
-#include <chrono>
-#include <random>
-#include <mutex>
-
-using namespace std;
-
-mutex mut;
-condition_variable cv;
-int tag;
 
 class InterruptFlag
 {
 public:
 	inline void set() {
-		lock_guard<mutex> guard(_mtx);
 		_set = true;
 	}
 
 	inline bool is_set() {
-		lock_guard<mutex> guard(_mtx);
 		return _set;
 	}
 
 private:
-	mutex _mtx;
 	bool _set;
 };
 
@@ -37,11 +23,11 @@ thread_local InterruptFlag this_thread_interrupt_flag;
 class InterruptibleThread
 {
 public:
-	thread _internal_thread;
+	std::thread _internal_thread;
 	template<typename FunctionType, typename... Args>
 	InterruptibleThread(FunctionType&& f, Args&&... args)
 	{
-		promise<InterruptFlag*> p;
+		std::promise<InterruptFlag*> p;
 		_internal_thread = thread([&f, &p, &args...]()
 		{
 			p.set_value(&this_thread_interrupt_flag);
@@ -62,8 +48,8 @@ public:
 		_internal_thread.join();
 	}
 
-	thread::id get_id() {
-		return this_thread::get_id();
+	std::thread::id get_id() {
+		return std::this_thread::get_id();
 	}
 
 	InterruptFlag* getInterruptFlag() {

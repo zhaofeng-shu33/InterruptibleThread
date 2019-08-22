@@ -1,6 +1,10 @@
-#include "InterruptibleThread.h"
+#include <iostream>
+#include <chrono>
+#include <random>
 #include <functional>
-
+#include <mutex>
+#include "InterruptibleThread.h"
+using namespace std;
 using std::function;
 
 struct thread_interrupted {};
@@ -11,21 +15,25 @@ void interruption_point()
 		throw thread_interrupted();
 	}
 }
-
+mutex mut;
 void foo(promise<std::thread::id>* pro_ptr_, uniform_int_distribution<int>& u_)
 {
     default_random_engine e_;
+    bool tag = false;    
 	while (true) {
 		int res = u_(e_);
 		if (res == 7) {
 			if (!tag) {
-				unique_lock<mutex> lk(mut);
+				lock_guard<mutex> guard(mut);
 				pro_ptr_->set_value(this_thread::get_id());
-				tag = 1;
+				tag = true;
 			}
 			break;
 		}
-		cout << this_thread::get_id() << " **** " << res << endl;
+        {
+            lock_guard<mutex> guard(mut);            
+            cout << this_thread::get_id() << " **** " << res << endl;
+        }
 		try {
 			interruption_point();
 		}
@@ -54,7 +62,7 @@ int main()
 		threads.push_back(InterruptibleThread(foo, &pro, u));
 	}
 	if (fut.wait_for(chrono::milliseconds(1000)) == future_status::ready) {
-		cout << "get it!\n";
+		cout << "get it " << fut.get() << endl;
 	}
 	
 	for (auto& t : threads) {
