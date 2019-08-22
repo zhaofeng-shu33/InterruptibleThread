@@ -1,6 +1,6 @@
 language: cpp
 os: linux
 script:
-  - g++ -std=c++11 -pthread InterruptibleThread.cpp -o InterruptibleThread
-  - ./InterruptibleThread
+  - g++ -std=c++11 -pthread InterruptibleThread.cpp example.cpp -o example
+  - ./example
 
