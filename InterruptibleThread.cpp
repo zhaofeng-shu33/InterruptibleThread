@@ -12,14 +12,15 @@ void interruption_point()
 	}
 }
 
-void foo(InterruptibleThread& t)
+void foo(promise<std::thread::id>* pro_ptr_, uniform_int_distribution<int>& u_)
 {
+    default_random_engine e_;
 	while (true) {
-		int res = t.u_(t.e_);
+		int res = u_(e_);
 		if (res == 7) {
 			if (!tag) {
 				unique_lock<mutex> lk(mut);
-				t.pro_ptr_->set_value(this_thread::get_id());
+				pro_ptr_->set_value(this_thread::get_id());
 				tag = 1;
 			}
 			break;
@@ -45,8 +46,8 @@ void foo(InterruptibleThread& t)
 int main() 
 {
 	uniform_int_distribution<int> u(0, 9);
-	promise<decltype(this_thread::get_id())> pro;
-	future<decltype(this_thread::get_id())> fut = pro.get_future();
+	promise<std::thread::id> pro;
+	future<std::thread::id> fut = pro.get_future();
 	vector<InterruptibleThread> threads;
 	cout << thread::hardware_concurrency() - 1 << endl;
 	for (auto i = 0; i < thread::hardware_concurrency() - 1; i++) {
