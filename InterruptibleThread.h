@@ -9,11 +9,11 @@ namespace InterruptibleThread{
     class InterruptFlag
     {
     public:
-        inline void InterruptFlag::set() {
+        inline void set() {
             _set = true;
         }
 
-        inline bool InterruptFlag::is_set() {
+        inline bool is_set() {
             return _set;
         }
 
@@ -42,7 +42,7 @@ namespace InterruptibleThread{
             _interrupt_flag = p.get_future().get();
         }
 
-        inline void thread::interrupt()
+        inline void interrupt()
         {
             if (_interrupt_flag != nullptr)
             {
