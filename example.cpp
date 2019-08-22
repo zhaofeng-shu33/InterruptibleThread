@@ -7,10 +7,11 @@ typedef InterruptibleThread::thread_interrupted thread_interrupted;
 typedef InterruptibleThread::thread thread;
 const auto& interruption_point = InterruptibleThread::interruption_point;
 std::mutex mut;
+bool tag = false;
 void foo(std::promise<std::thread::id>* pro_ptr_, std::uniform_int_distribution<int>& u_)
 {
     std::default_random_engine e_;
-    bool tag = false;    
+    
 	while (true) {
 		int res = u_(e_);
 		if (res == 7) {
@@ -53,6 +54,7 @@ int main()
 		threads.push_back(thread(foo, &pro, u));
 	}
 	if (fut.wait_for(std::chrono::milliseconds(1000)) == std::future_status::ready) {
+        std::lock_guard<std::mutex> guard(mut);
 		std::cout << "get it " << fut.get() << std::endl;
 	}
 	
