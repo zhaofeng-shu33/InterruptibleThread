@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(InterruptibleThread)
+set(CMAKE_CXX_STANDARD 11)
 option(CODE_COVERAGE "Enable coverage reporting" OFF)
 option(COMPILE_EXAMPLE "whether to compile the example executable" OFF)
 
