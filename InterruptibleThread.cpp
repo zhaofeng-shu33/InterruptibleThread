@@ -61,6 +61,5 @@ int main()
 		t.interrupt();
 		t.join();
 	}
-	getchar();
 	return 0;
 }
