@@ -1,4 +1,4 @@
-#include "foo.h"
+#include "InterruptibleThread.h"
 #include <functional>
 
 using std::function;
