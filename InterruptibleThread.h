@@ -9,9 +9,13 @@ namespace InterruptibleThread{
     class InterruptFlag
     {
     public:
-        inline void set();
+        inline void InterruptFlag::set() {
+            _set = true;
+        }
 
-        inline bool is_set();
+        inline bool InterruptFlag::is_set() {
+            return _set;
+        }
 
     private:
         bool _set;
@@ -38,7 +42,13 @@ namespace InterruptibleThread{
             _interrupt_flag = p.get_future().get();
         }
 
-        inline void interrupt();
+        inline void thread::interrupt()
+        {
+            if (_interrupt_flag != nullptr)
+            {
+                _interrupt_flag->set();
+            }
+        }
 
         void join();
 
@@ -49,5 +59,6 @@ namespace InterruptibleThread{
     private:
         InterruptFlag* _interrupt_flag;
     };
+
 }
 #endif // INTERRUPTIBLETHREAD_H
