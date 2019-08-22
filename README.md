@@ -5,5 +5,6 @@ This is a header only library.
 
 To compile the demo code:
 ```shell
-g++ -std=c++11 -pthread InterruptibleThread.cpp -o InterruptibleThread
+g++ -std=c++11 -pthread InterruptibleThread.cpp -o InterruptibleThread # linux
+cl /EHsc InterruptibleThread.cpp # windows Native Tools Command Prompt
 ```
