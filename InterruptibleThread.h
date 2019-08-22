@@ -1,6 +1,7 @@
 #ifndef INTERRUPTIBLETHREAD_H
 #define INTERRUPTIBLETHREAD_H
 #include <thread>
+#include <functional>
 #include <future>
 namespace InterruptibleThread{
     struct thread_interrupted {};
@@ -8,28 +9,18 @@ namespace InterruptibleThread{
     class InterruptFlag
     {
     public:
-        inline void set() {
-            _set = true;
-        }
+        inline void set();
 
-        inline bool is_set() {
-            return _set;
-        }
+        inline bool is_set();
 
     private:
         bool _set;
     };
     
-    thread_local InterruptFlag this_thread_interrupt_flag;    
+    extern thread_local InterruptFlag this_thread_interrupt_flag;    
     
-    void interruption_point()
-    {
-        if (this_thread_interrupt_flag.is_set()) {
-            throw thread_interrupted();
-        }
-    }
+    void interruption_point();
     
-
     class thread
     {
     public:
@@ -41,30 +32,19 @@ namespace InterruptibleThread{
             _internal_thread = std::thread([&f, &p, &args...]()
             {
                 p.set_value(&this_thread_interrupt_flag);
-                f(args...);
+                auto f1 = std::bind(f, args...);
+                f1();
             });
             _interrupt_flag = p.get_future().get();
         }
 
-        inline void interrupt()
-        {
-            if (_interrupt_flag != nullptr)
-            {
-                _interrupt_flag->set();
-            }
-        }
+        inline void interrupt();
 
-        void join() {
-            _internal_thread.join();
-        }
+        void join();
 
-        std::thread::id get_id() {
-            return std::this_thread::get_id();
-        }
+        std::thread::id get_id();
 
-        InterruptFlag* getInterruptFlag() {
-            return &this_thread_interrupt_flag;
-        }
+        InterruptFlag* getInterruptFlag();
 
     private:
         InterruptFlag* _interrupt_flag;
