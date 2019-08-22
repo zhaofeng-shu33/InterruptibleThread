@@ -1,12 +1,5 @@
 #include "InterruptibleThread.h"
 namespace InterruptibleThread{
-    inline void InterruptFlag::set() {
-        _set = true;
-    }
-
-    inline bool InterruptFlag::is_set() {
-        return _set;
-    }
         
     thread_local InterruptFlag this_thread_interrupt_flag; 
     
@@ -17,13 +10,7 @@ namespace InterruptibleThread{
         }
     }
     
-    inline void thread::interrupt()
-    {
-        if (_interrupt_flag != nullptr)
-        {
-            _interrupt_flag->set();
-        }
-    }
+
 
     void thread::join() {
         _internal_thread.join();
