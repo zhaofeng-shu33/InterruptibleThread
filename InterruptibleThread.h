@@ -39,7 +39,7 @@ class InterruptibleThread
 public:
 	thread _internal_thread;
 	template<typename FunctionType, typename... Args>
-	InterruptibleThread(FunctionType&& f, Args&&... args): 
+	InterruptibleThread(FunctionType&& f, Args&&... args)
 	{
 		promise<InterruptFlag*> p;
 		_internal_thread = thread([&f, &p, &args...]()
