@@ -1,7 +1,10 @@
 # Interruptible Thread
+[![Travis](https://travis-ci.com/zhaofeng-shu33/InterruptibleThread.svg?branch=master)](
+    https://travis-ci.com/zhaofeng-shu33/InterruptibleThread)
+    
 Interruptible Thread is a thin wrapper of `std::thread` which provides the `interrupt` method.
 
-This is a header only library.
+
 
 To compile the demo code:
 ```shell

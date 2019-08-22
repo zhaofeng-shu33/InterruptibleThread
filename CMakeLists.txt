@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
-project(InterruptibleThread)
+if("${CMAKE_PROJECT_NAME}" STREQUAL "" OR "${CMAKE_PROJECT_NAME}" STREQUAL "InterruptibleThread")
+    project(InterruptibleThread)
+endif()
+
 set(CMAKE_CXX_STANDARD 11)
 option(CODE_COVERAGE "Enable coverage reporting" OFF)
 option(COMPILE_EXAMPLE "whether to compile the example executable" OFF)
