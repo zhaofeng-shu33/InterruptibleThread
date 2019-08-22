@@ -1,38 +1,29 @@
 #include <iostream>
 #include <chrono>
 #include <random>
-#include <functional>
 #include <mutex>
 #include "InterruptibleThread.h"
-using namespace std;
-using std::function;
-
-struct thread_interrupted {};
-
-void interruption_point()
+typedef InterruptibleThread::thread_interrupted thread_interrupted;
+typedef InterruptibleThread::thread thread;
+const auto& interruption_point = InterruptibleThread::interruption_point;
+std::mutex mut;
+void foo(std::promise<std::thread::id>* pro_ptr_, std::uniform_int_distribution<int>& u_)
 {
-	if (this_thread_interrupt_flag.is_set()) {
-		throw thread_interrupted();
-	}
-}
-mutex mut;
-void foo(promise<std::thread::id>* pro_ptr_, uniform_int_distribution<int>& u_)
-{
-    default_random_engine e_;
+    std::default_random_engine e_;
     bool tag = false;    
 	while (true) {
 		int res = u_(e_);
 		if (res == 7) {
 			if (!tag) {
-				lock_guard<mutex> guard(mut);
-				pro_ptr_->set_value(this_thread::get_id());
+				std::lock_guard<std::mutex> guard(mut);
+				pro_ptr_->set_value(std::this_thread::get_id());
 				tag = true;
 			}
 			break;
 		}
         {
-            lock_guard<mutex> guard(mut);            
-            cout << this_thread::get_id() << " **** " << res << endl;
+            std::lock_guard<std::mutex> guard(mut);            
+            std::cout << std::this_thread::get_id() << " **** " << res << std::endl;
         }
 		try {
 			interruption_point();
@@ -53,19 +44,19 @@ void foo(promise<std::thread::id>* pro_ptr_, uniform_int_distribution<int>& u_)
 
 int main() 
 {
-	uniform_int_distribution<int> u(0, 9);
-	promise<std::thread::id> pro;
-	future<std::thread::id> fut = pro.get_future();
-	vector<InterruptibleThread> threads;
-	cout << thread::hardware_concurrency() - 1 << endl;
-	for (auto i = 0; i < thread::hardware_concurrency() - 1; i++) {
-		threads.push_back(InterruptibleThread(foo, &pro, u));
+	std::uniform_int_distribution<int> u(0, 9);
+	std::promise<std::thread::id> pro;
+	std::future<std::thread::id> fut = pro.get_future();
+	std::vector<thread> threads;
+	std::cout << std::thread::hardware_concurrency() - 1 << std::endl;
+	for (int i = 0; i < std::thread::hardware_concurrency() - 1; i++) {
+		threads.push_back(thread(foo, &pro, u));
 	}
-	if (fut.wait_for(chrono::milliseconds(1000)) == future_status::ready) {
-		cout << "get it " << fut.get() << endl;
+	if (fut.wait_for(std::chrono::milliseconds(1000)) == std::future_status::ready) {
+		std::cout << "get it " << fut.get() << std::endl;
 	}
 	
-	for (auto& t : threads) {
+	for (thread& t : threads) {
 		t.interrupt();
 		t.join();
 	}

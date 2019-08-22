@@ -2,62 +2,72 @@
 #define INTERRUPTIBLETHREAD_H
 #include <thread>
 #include <future>
+namespace InterruptibleThread{
+    struct thread_interrupted {};
+    
+    class InterruptFlag
+    {
+    public:
+        inline void set() {
+            _set = true;
+        }
 
-class InterruptFlag
-{
-public:
-	inline void set() {
-		_set = true;
-	}
+        inline bool is_set() {
+            return _set;
+        }
 
-	inline bool is_set() {
-		return _set;
-	}
+    private:
+        bool _set;
+    };
+    
+    thread_local InterruptFlag this_thread_interrupt_flag;    
+    
+    void interruption_point()
+    {
+        if (this_thread_interrupt_flag.is_set()) {
+            throw thread_interrupted();
+        }
+    }
+    
 
-private:
-	bool _set;
-};
+    class thread
+    {
+    public:
+        std::thread _internal_thread;
+        template<typename FunctionType, typename... Args>
+        thread(FunctionType&& f, Args&&... args)
+        {
+            std::promise<InterruptFlag*> p;
+            _internal_thread = std::thread([&f, &p, &args...]()
+            {
+                p.set_value(&this_thread_interrupt_flag);
+                f(args...);
+            });
+            _interrupt_flag = p.get_future().get();
+        }
 
-thread_local InterruptFlag this_thread_interrupt_flag;
+        inline void interrupt()
+        {
+            if (_interrupt_flag != nullptr)
+            {
+                _interrupt_flag->set();
+            }
+        }
 
-class InterruptibleThread
-{
-public:
-	std::thread _internal_thread;
-	template<typename FunctionType, typename... Args>
-	InterruptibleThread(FunctionType&& f, Args&&... args)
-	{
-		std::promise<InterruptFlag*> p;
-		_internal_thread = thread([&f, &p, &args...]()
-		{
-			p.set_value(&this_thread_interrupt_flag);
-			f(args...);
-		});
-		_interrupt_flag = p.get_future().get();
-	}
+        void join() {
+            _internal_thread.join();
+        }
 
-	inline void interrupt()
-	{
-		if (_interrupt_flag != nullptr)
-		{
-			_interrupt_flag->set();
-		}
-	}
+        std::thread::id get_id() {
+            return std::this_thread::get_id();
+        }
 
-	void join() {
-		_internal_thread.join();
-	}
+        InterruptFlag* getInterruptFlag() {
+            return &this_thread_interrupt_flag;
+        }
 
-	std::thread::id get_id() {
-		return std::this_thread::get_id();
-	}
-
-	InterruptFlag* getInterruptFlag() {
-		return &this_thread_interrupt_flag;
-	}
-
-private:
-	InterruptFlag* _interrupt_flag;
-};
-
+    private:
+        InterruptFlag* _interrupt_flag;
+    };
+}
 #endif // INTERRUPTIBLETHREAD_H
