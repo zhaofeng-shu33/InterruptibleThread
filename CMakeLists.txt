@@ -3,7 +3,7 @@ if("${CMAKE_PROJECT_NAME}" STREQUAL "" OR "${CMAKE_PROJECT_NAME}" STREQUAL "Inte
     project(InterruptibleThread)
 endif()
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 option(CODE_COVERAGE "Enable coverage reporting" OFF)
 option(COMPILE_EXAMPLE "whether to compile the example executable" OFF)
 

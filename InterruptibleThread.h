@@ -33,7 +33,8 @@ namespace InterruptibleThread{
     extern thread_local InterruptFlag this_thread_interrupt_flag;    
     
     void interruption_point();
-    
+
+
     class thread
     {
     public:
@@ -42,11 +43,14 @@ namespace InterruptibleThread{
         thread(FunctionType&& f, Args&&... args)
         {
             std::promise<InterruptFlag*> p;
-            _internal_thread = std::thread([&f, &p, &args...]()
-            {
-                p.set_value(&this_thread_interrupt_flag);
-                invoke(f, args...);
-            });
+            _internal_thread = std::thread([](std::promise<InterruptFlag*>& p, auto&& f, auto&&... args)
+	    {
+		p.set_value(&this_thread_interrupt_flag);
+		invoke(f, args...);
+	    }, 
+            std::ref(p),
+	    std::forward<FunctionType>(f),
+            std::forward<Args>(args)...);
             _interrupt_flag = p.get_future().get();
         }
 
