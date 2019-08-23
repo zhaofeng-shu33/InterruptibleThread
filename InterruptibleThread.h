@@ -36,7 +36,7 @@ namespace InterruptibleThread{
             _internal_thread = std::thread([&f, &p, &args...]()
             {
                 p.set_value(&this_thread_interrupt_flag);
-                auto f1 = std::bind(f, args...);
+                std::function<void()> f1 = std::bind(f, args...);
                 f1();
             });
             _interrupt_flag = p.get_future().get();
