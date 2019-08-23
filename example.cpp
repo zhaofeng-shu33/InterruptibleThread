@@ -51,7 +51,7 @@ int main()
 	std::vector<thread> threads;
 	std::cout << std::thread::hardware_concurrency() - 1 << std::endl;
 	for (int i = 0; i < std::thread::hardware_concurrency() - 1; i++) {
-		threads.push_back(thread(foo, &pro, u));
+		threads.push_back(thread(foo, &pro, std::ref(u)));
 	}
 	if (fut.wait_for(std::chrono::milliseconds(1000)) == std::future_status::ready) {
         std::lock_guard<std::mutex> guard(mut);

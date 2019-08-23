@@ -3,6 +3,15 @@
 #include <thread>
 #include <functional>
 #include <future>
+#ifndef __cpp_lib_invoke
+#define __cpp_lib_invoke
+template<typename F, typename... Args>
+auto invoke(F f, Args&&... args)
+    -> decltype(std::ref(f)(std::forward<Args>(args)...))
+{
+    return std::ref(f)(std::forward<Args>(args)...);
+}
+#endif
 namespace InterruptibleThread{
     struct thread_interrupted {};
     
@@ -36,8 +45,7 @@ namespace InterruptibleThread{
             _internal_thread = std::thread([&f, &p, &args...]()
             {
                 p.set_value(&this_thread_interrupt_flag);
-                std::function<void()> f1 = std::bind(f, args...);
-                f1();
+                invoke(f, args...);
             });
             _interrupt_flag = p.get_future().get();
         }
