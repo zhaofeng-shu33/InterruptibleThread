@@ -14,6 +14,7 @@ if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 if(UNIX)
+    target_compile_options(InterruptibleThread PRIVATE "-fPIC")
     target_link_libraries(InterruptibleThread INTERFACE pthread)
 endif()
 
